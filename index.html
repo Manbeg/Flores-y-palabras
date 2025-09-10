@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Entre flores y palabras</title>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      height: 100vh;
+      overflow: hidden; /* Evita scroll */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(-45deg, #6a0dad, #1e90ff, #ffd700, #ff69b4);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      font-family: 'Dancing Script', cursive;
+      text-align: center;
+      padding: 10px; /* Padding mínimo */
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    /* Recuadro central estilo "marco" - Adaptativo */
+    .main-container {
+      position: relative;
+      background: rgba(0,0,0,0.45);
+      padding: clamp(20px, 4vh, 40px); /* Padding adaptativo */
+      border-radius: 20px;
+      max-width: min(90vw, 400px); /* Responsive width */
+      max-height: min(90vh, 650px); /* Altura máxima */
+      width: 100%;
+      box-shadow: 0 0 25px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between; /* Distribuye el espacio */
+    }
+
+    /* Borde degradado animado */
+    .main-container::before {
+      content: "";
+      position: absolute;
+      top: -3px;
+      left: -3px;
+      right: -3px;
+      bottom: -3px;
+      border-radius: 23px;
+      background: linear-gradient(45deg, #ff69b4, #ffd700, #1e90ff, #6a0dad, #6a0dad);
+      background-size: 400% 400%;
+      animation: borderAnimContainer 10s linear infinite;
+      z-index: -1;
+    }
+
+    @keyframes borderAnimContainer {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    h1 {
+      font-size: clamp(1.5rem, 4vw, 2.2rem); /* Título responsive */
+      color: white;
+      animation: glowInverse 12s ease-in-out infinite;
+      margin: 0 0 clamp(10px, 2vh, 15px) 0;
+      line-height: 1.2;
+    }
+
+    @keyframes glowInverse {
+      0% { text-shadow: 0 0 8px #ffd700,0 0 16px #ff8c00,0 0 24px #ff4500; }
+      25% { text-shadow: 0 0 8px #00ffff,0 0 16px #1e90ff,0 0 24px #0000ff; }
+      50% { text-shadow: 0 0 8px #adff2f,0 0 16px #32cd32,0 0 24px #008000; }
+      75% { text-shadow: 0 0 8px #ff00ff,0 0 16px #ba55d3,0 0 24px #800080; }
+      100% { text-shadow: 0 0 8px #ffd700,0 0 16px #ff8c00,0 0 24px #ff4500; }
+    }
+
+    .image-container {
+      width: min(250px, 70vw); /* Imagen responsive */
+      height: min(250px, 70vw);
+      max-height: 35vh; /* Altura máxima en viewport */
+      aspect-ratio: 1; /* Mantiene proporción cuadrada */
+      border: 4px solid;
+      border-image-slice: 1;
+      border-radius: 15px;
+      margin: clamp(10px, 2vh, 15px) 0;
+      overflow: hidden;
+      animation: borderAnim 10s infinite alternate;
+      flex-shrink: 0; /* No se encoge */
+    }
+
+    @keyframes borderAnim {
+      0% { border-color: #ff69b4; }
+      25% { border-color: #ffd700; }
+      50% { border-color: #1e90ff; }
+      75% { border-color: #6a0dad; }
+      100% { border-color: #ff69b4; }
+    }
+
+    .image-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    /* --- INICIO: Estilos para Copiar Frase --- */
+    .phrase-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-grow: 1;
+        width: 100%;
+    }
+
+    #copy-button {
+        position: absolute;
+        top: 0;
+        right: 0;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: rgba(255, 255, 255, 0.7);
+        padding: 5px;
+        transition: color 0.3s, transform 0.3s;
+    }
+
+    #copy-button:hover {
+        color: white;
+        transform: scale(1.1);
+    }
+
+    #copy-tooltip {
+        position: absolute;
+        bottom: -25px;
+        background-color: #6a0dad;
+        color: white;
+        padding: 4px 10px;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none; /* Evita que interfiera con el mouse */
+    }
+
+    #copy-tooltip.show {
+        opacity: 1;
+    }
+    /* --- FIN: Estilos para Copiar Frase --- */
+
+
+    .phrase {
+      font-size: clamp(1.4rem, 4vw, 1.8rem); /* Frase responsive */
+      margin: 0;
+      padding: 0 25px; /* Espacio para el botón de copiar */
+      line-height: 1.3;
+      display: flex;
+      align-items: center;
+      text-align: center;
+      
+      background: linear-gradient(45deg, #ff69b4, #ffd700, #1e90ff, #6a0dad, #ff69b4);
+      background-size: 400% 400%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: gradientText 10s ease infinite;
+      
+      text-shadow: 0 0 8px rgba(255, 255, 255, 0.5), 0 0 3px rgba(0, 0, 0, 0.8);
+    }
+    
+    @keyframes gradientText {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    button {
+      padding: clamp(8px, 2vh, 12px) clamp(16px, 4vw, 24px);
+      font-size: clamp(1.2rem, 3vw, 1.4rem);
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      background: linear-gradient(45deg, #6a0dad, #1e90ff, #ffd700);
+      color: white;
+      text-shadow: 0 0 5px #000;
+      transition: transform 0.3s ease, background-color 0.3s ease;
+      margin-top: clamp(15px, 2vh, 20px);
+      flex-shrink: 0; /* No se encoge */
+    }
+
+    button:hover {
+      transform: scale(1.05);
+    }
+    
+    button:disabled {
+        cursor: not-allowed;
+        background: #888;
+    }
+
+    /* --- INICIO: CÓDIGO DE TRANSICIONES --- */
+    .image-container img, .phrase-container {
+      transition: opacity 0.3s ease-in, transform 0.3s ease-in;
+    }
+
+    @keyframes fade-out { from { opacity: 1; } to { opacity: 0; } }
+    @keyframes slide-out-left { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(-50px); } }
+    @keyframes slide-out-right { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(50px); } }
+    @keyframes zoom-out { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.7); } }
+    @keyframes flip-out { from { transform: rotateY(0deg); opacity: 1; } to { transform: rotateY(90deg); opacity: 0; } }
+    @keyframes blur-out { from { opacity: 1; filter: blur(0); } to { opacity: 0; filter: blur(5px); } }
+    
+    @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slide-in-left { from { opacity: 0; transform: translateX(-50px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes slide-in-right { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes zoom-in { from { opacity: 0; transform: scale(0.7); } to { opacity: 1; transform: scale(1); } }
+    @keyframes flip-in { from { transform: rotateY(90deg); opacity: 0; } to { transform: rotateY(0deg); opacity: 1; } }
+    @keyframes blur-in { from { opacity: 0; filter: blur(5px); } to { opacity: 1; filter: blur(0); } }
+
+    .fade-out { animation: fade-out 0.6s forwards; }
+    .slide-out-left { animation: slide-out-left 0.6s forwards; }
+    .slide-out-right { animation: slide-out-right 0.6s forwards; }
+    .zoom-out { animation: zoom-out 0.6s forwards; }
+    .flip-out { animation: flip-out 0.6s forwards; }
+    .blur-out { animation: blur-out 0.6s forwards; }
+    
+    .fade-in { animation: fade-in 0.5s forwards; }
+    .slide-in-left { animation: slide-in-left 0.5s forwards; }
+    .slide-in-right { animation: slide-in-right 0.5s forwards; }
+    .zoom-in { animation: zoom-in 0.5s forwards; }
+    .flip-in { animation: flip-in 0.5s forwards; }
+    .blur-in { animation: blur-in 0.5s forwards; }
+    /* --- FIN: CÓDIGO DE TRANSICIONES --- */
+
+    /* Media queries adicionales para móviles muy pequeños */
+    @media (max-height: 600px) {
+      body { padding: 2px; }
+      .main-container { padding: 10px; max-height: 98vh; }
+      h1 { font-size: clamp(1.1rem, 3vw, 1.6rem); margin-bottom: 5px; }
+      .image-container { width: min(160px, 55vw); height: min(160px, 55vw); margin: 5px 0; border-width: 3px; }
+      .phrase { font-size: clamp(1.1rem, 3.2vw, 1.4rem); }
+      button { padding: 6px 12px; font-size: clamp(1rem, 2.5vw, 1.2rem); }
+    }
+
+    @media (max-width: 360px) {
+      .main-container { padding: 8px; max-height: 96vh; }
+      h1 { font-size: clamp(1rem, 2.8vw, 1.4rem); }
+    }
+
+    @media (max-width: 320px), (max-height: 480px) {
+      body { background: linear-gradient(-45deg, #6a0dad, #1e90ff, #ffd700, #ff69b4) !important; background-attachment: fixed !important; }
+      .main-container { max-height: 95vh; padding: 5px; }
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="main-container">
+    <h1>Entre flores y palabras, regálate un respiro.</h1>
+
+    <div class="image-container">
+      <img id="randomImage" src="" alt="Imagen aleatoria">
+    </div>
+
+    <div class="phrase-container">
+        <p class="phrase" id="randomPhrase">Aquí irá tu frase inspiradora...</p>
+        <button id="copy-button" title="Copiar frase">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-clipboard-check" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0z"/>
+                <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+                <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+            </svg>
+        </button>
+        <div id="copy-tooltip">¡Copiado!</div>
+    </div>
+
+    <button id="generateButton">Quiero otra</button>
+  </div>
+
+  <!-- INICIO: Editor de Contenido (Solo para el administrador) -->
+
+  <!-- Para editar las FRASES, agrega o elimina líneas en este bloque. Cada línea es una frase. -->
+  <script id="phrases-data" type="text/plain" style="display: none;">
+Eres un universo en expansión.
+La calma florece dentro de ti.
+Respira, estás en el momento justo.
+La belleza está en lo sencillo.
+Cada día es un renacer.
+Tu luz interior nunca se apaga.
+Encuentra magia en lo cotidiano.
+Eres más fuerte de lo que imaginas.
+La paz comienza en tu interior.
+Hoy es una nueva oportunidad.
+Confía en el proceso, todo llega a su tiempo.
+Tu energía es tu superpoder.
+Permítete brillar sin pedir permiso.
+La gratitud transforma lo que tenemos en suficiente.
+Eres el artista de tu propia vida.
+Lo que buscas, también te está buscando a ti.
+Celebra tus pequeños logros de hoy.
+Hay algo en tu sonrisa que reinicia el día.
+Me pregunto si eres tan increíble como pareces.
+Debería ser ilegal tener esa mirada.
+Se nota que guardas universos interesantes.
+Contigo, los lunes se sienten como viernes.
+Tienes ese "no sé qué" que lo cambia todo.
+Ojalá el destino te incluya en mis planes.
+Si la belleza fuera un crimen, pasarías la vida en la cárcel.
+¿Crees en el amor a primera vista o tengo que volver a pasar?
+No eres Google, pero tienes todo lo que busco.
+Me debes un trago. Se me cayó el mío al verte.
+Aparte de robar suspiros, ¿a qué más te dedicas?
+  </script>
+
+  <!-- Para editar las IMÁGENES, agrega o elimina URLs en este bloque. Cada línea es una imagen. -->
+  <script id="images-data" type="text/plain" style="display: none;">
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-1.jpg
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-1.png
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-2.jpg
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-2.png
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-3.jpg
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-3.png
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-4.jpg
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-4.png
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-5.jpg
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-6.jpg
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-7.jpg
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-8.jpg
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-9.jpg
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-10.jpg
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-11.jpg
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-12.jpg
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-13.jpg
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-14.jpg
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-15.jpg
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-16.jpg
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-17.jpg
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-18.jpg
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-19.jpg
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-20.jpg
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-21.jpg
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-22.jpg
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-23.jpg
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-24.jpg
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-25.jpg
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-26.jpg
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-27.jpg
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-28.jpg
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-29.jpg
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-30.jpg
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-31.jpg
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-32.jpg
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-33.jpg
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-34.jpg
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-35.jpg
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-36.jpg
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-37.jpg
+https://manbeg.wordpress.com/wp-content/uploads/2025/09/purple_flowers-38.jpg
+  </script>
+  
+  <!-- FIN: Editor de Contenido -->
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Leer frases desde el bloque de datos
+      const phrasesData = document.getElementById('phrases-data').textContent;
+      const phrases = phrasesData.trim().split('\n').filter(line => line.trim() !== '');
+
+      // Leer imágenes desde el bloque de datos
+      const imagesData = document.getElementById('images-data').textContent;
+      const purpleFlowerImages = imagesData.trim().split('\n').filter(line => line.trim() !== '');
+
+
+      let lastImageIndex = -1;
+      let lastPhraseIndex = -1;
+
+      const imageElement = document.getElementById("randomImage");
+      const phraseElement = document.getElementById("randomPhrase");
+      const generateButton = document.getElementById("generateButton");
+      const copyButton = document.getElementById("copy-button");
+      const copyTooltip = document.getElementById("copy-tooltip");
+      const phraseContainer = document.querySelector(".phrase-container");
+
+      // --- INICIO: Lógica para Copiar Frase ---
+      copyButton.addEventListener('click', () => {
+        const textToCopy = phraseElement.textContent;
+        
+        // Se usa un textarea temporal para asegurar la compatibilidad
+        const tempTextarea = document.createElement('textarea');
+        tempTextarea.value = textToCopy;
+        document.body.appendChild(tempTextarea);
+        tempTextarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempTextarea);
+
+        // Mostrar notificación
+        copyTooltip.classList.add('show');
+        setTimeout(() => {
+            copyTooltip.classList.remove('show');
+        }, 1500);
+      });
+      // --- FIN: Lógica para Copiar Frase ---
+
+      function generateContent() {
+        generateButton.disabled = true;
+
+        let randomImageIndex;
+        do {
+          randomImageIndex = Math.floor(Math.random() * purpleFlowerImages.length);
+        } while (randomImageIndex === lastImageIndex && purpleFlowerImages.length > 1);
+        lastImageIndex = randomImageIndex;
+
+        let randomPhraseIndex;
+        do {
+          randomPhraseIndex = Math.floor(Math.random() * phrases.length);
+        } while (randomPhraseIndex === lastPhraseIndex && phrases.length > 1);
+        lastPhraseIndex = randomPhraseIndex;
+        
+        const transitions = [
+          { out: 'fade-out', in: 'fade-in' },
+          { out: 'slide-out-left', in: 'slide-in-right' },
+          { out: 'slide-out-right', in: 'slide-in-left' },
+          { out: 'zoom-out', in: 'zoom-in' },
+          { out: 'flip-out', in: 'flip-in' },
+          { out: 'blur-out', in: 'blur-in' }
+        ];
+        const randomTransition = transitions[Math.floor(Math.random() * transitions.length)];
+        
+        imageElement.className = '';
+        phraseContainer.className = 'phrase-container';
+        
+        imageElement.classList.add(randomTransition.out);
+        phraseContainer.classList.add(randomTransition.out);
+        
+        const newImage = new Image();
+        
+        newImage.onload = function() {
+          setTimeout(() => {
+            imageElement.src = newImage.src;
+            phraseElement.textContent = phrases[randomPhraseIndex];
+            
+            imageElement.classList.remove(randomTransition.out);
+            phraseContainer.classList.remove(randomTransition.out);
+            imageElement.classList.add(randomTransition.in);
+            phraseContainer.classList.add(randomTransition.in);
+
+            setTimeout(() => {
+              generateButton.disabled = false;
+            }, 500);
+          }, 600);
+        };
+        
+        newImage.onerror = function() {
+          setTimeout(() => {
+            phraseElement.textContent = phrases[randomPhraseIndex];
+            
+            imageElement.classList.remove(randomTransition.out);
+            phraseContainer.classList.remove(randomTransition.out);
+            phraseContainer.classList.add(randomTransition.in);
+            
+            setTimeout(() => {
+              generateButton.disabled = false;
+            }, 500);
+          }, 600);
+          console.log('Error cargando imagen, solo se cambió la frase');
+        };
+        
+        newImage.src = purpleFlowerImages[randomImageIndex];
+      }
+
+      // Conectar el botón 'Quiero otra' a su función.
+      generateButton.addEventListener('click', generateContent);
+
+      // Cargar el contenido inicial al entrar a la página.
+      generateContent();
+    });
+  </script>
+</body>
+</html>
+
